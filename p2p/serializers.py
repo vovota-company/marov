@@ -33,6 +33,14 @@ class SellOfferSerializer(serializers.ModelSerializer):
         write_only=True
     )
 
+    # WRITE
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source="user",
+        write_only=True,
+        required=False
+    )
+
     currency_id = serializers.PrimaryKeyRelatedField(
         queryset=Currency.objects.all(),
         source="currency",
@@ -49,7 +57,7 @@ class SellOfferSerializer(serializers.ModelSerializer):
         model = SellOffer
         fields = [
             "id",
-            "user",
+            "user", "user_id",
             "payment_method", "payment_method_id",
             "currency", "currency_id",
             "coin", "coin_id",
@@ -74,6 +82,14 @@ class BuyOfferSerializer(serializers.ModelSerializer):
         write_only=True
     )
 
+    # WRITE
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source="user",
+        write_only=True,
+        required=False
+    )
+
     currency_id = serializers.PrimaryKeyRelatedField(
         queryset=Currency.objects.all(),
         source="currency",
@@ -90,7 +106,7 @@ class BuyOfferSerializer(serializers.ModelSerializer):
         model = BuyOffer
         fields = [
             "id",
-            "user",
+            "user", "user_id",
             "payment_method", "payment_method_id",
             "currency", "currency_id",
             "coin", "coin_id",
