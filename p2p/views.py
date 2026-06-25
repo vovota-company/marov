@@ -2,13 +2,8 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema_view, extend_schema
-from .models import PaymentMethod, Currency, SellOffer, BuyOffer
-from .serializers import (
-    PaymentMethodSerializer,
-    CurrencySerializer,
-    SellOfferSerializer,
-    BuyOfferSerializer
-)
+from .models import *
+from .serializers import *
 
 
 class CustomResponseMixin:
@@ -145,5 +140,33 @@ class BuyOfferViewSet(CustomResponseMixin, viewsets.ViewSet):
         return self.success(
             serializer.data,
             "Buy offer created",
+            status.HTTP_201_CREATED
+        )
+    
+@extend_schema_view(
+    list=extend_schema(
+        responses=CoinSerializer(many=True),
+        tags=["Wallet"]
+    ),
+    create=extend_schema(
+        request=CoinSerializer,
+        responses=CoinSerializer,
+        tags=["Wallet"]
+    )
+)
+class CoinViewSet(CustomResponseMixin, viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        qs = Coin.objects.all().order_by("id")
+        return self.success(CoinSerializer(qs, many=True).data)
+
+    def create(self, request):
+        serializer = CoinSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return self.success(
+            serializer.data,
+            "Coin created",
             status.HTTP_201_CREATED
         )
