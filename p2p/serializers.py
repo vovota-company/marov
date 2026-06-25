@@ -26,10 +26,11 @@ class UserDetailSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["password"]
 
-        
+
 
 class SellOfferSerializer(serializers.ModelSerializer):
     # READ (nested)
+    user = UserDetailSerializer(read_only=True)
     payment_method = PaymentMethodSerializer(read_only=True)
     currency = CurrencySerializer(read_only=True)
     coin = CoinSerializer(read_only=True)
@@ -80,6 +81,7 @@ class SellOfferSerializer(serializers.ModelSerializer):
 
 
 class BuyOfferSerializer(serializers.ModelSerializer):
+    user = UserDetailSerializer(read_only=True)
     payment_method = PaymentMethodSerializer(read_only=True)
     currency = CurrencySerializer(read_only=True)
     coin = CoinSerializer(read_only=True)
