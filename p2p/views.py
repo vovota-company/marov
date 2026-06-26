@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema_view, extend_schema
+
 from .models import *
 from .serializers import *
 
@@ -47,6 +48,39 @@ class PaymentMethodViewSet(CustomResponseMixin, viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return self.success(serializer.data, "Created", status.HTTP_201_CREATED)
+
+
+# -------------------------
+# MY PAYMENT METHOD
+# -------------------------
+@extend_schema_view(
+    list=extend_schema(
+        responses=MyPaymentMethodSerializer(many=True),
+        tags=["P2P"]
+    ),
+    create=extend_schema(
+        request=MyPaymentMethodSerializer,
+        responses=MyPaymentMethodSerializer,
+        tags=["P2P"]
+    )
+)
+class MyPaymentMethodViewSet(CustomResponseMixin, viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        qs = MyPaymentMethod.objects.filter(user=request.user).order_by("-created_at")
+        return self.success(MyPaymentMethodSerializer(qs, many=True).data)
+
+    def create(self, request):
+        serializer = MyPaymentMethodSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+
+        return self.success(
+            serializer.data,
+            "Payment method added",
+            status.HTTP_201_CREATED
+        )
 
 
 # -------------------------
@@ -100,7 +134,6 @@ class SellOfferViewSet(CustomResponseMixin, viewsets.ViewSet):
     def create(self, request):
         serializer = SellOfferSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         serializer.save(user=request.user)
 
         return self.success(
@@ -134,7 +167,6 @@ class BuyOfferViewSet(CustomResponseMixin, viewsets.ViewSet):
     def create(self, request):
         serializer = BuyOfferSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         serializer.save(user=request.user)
 
         return self.success(
@@ -142,7 +174,77 @@ class BuyOfferViewSet(CustomResponseMixin, viewsets.ViewSet):
             "Buy offer created",
             status.HTTP_201_CREATED
         )
-    
+
+
+# -------------------------
+# SELL ORDER
+# -------------------------
+@extend_schema_view(
+    list=extend_schema(
+        responses=SellOrderSerializer(many=True),
+        tags=["P2P"]
+    ),
+    create=extend_schema(
+        request=SellOrderSerializer,
+        responses=SellOrderSerializer,
+        tags=["P2P"]
+    )
+)
+class SellOrderViewSet(CustomResponseMixin, viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        qs = SellOrder.objects.all().order_by("-created_at")
+        return self.success(SellOrderSerializer(qs, many=True).data)
+
+    def create(self, request):
+        serializer = SellOrderSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return self.success(
+            serializer.data,
+            "Sell order created",
+            status.HTTP_201_CREATED
+        )
+
+
+# -------------------------
+# BUY ORDER
+# -------------------------
+@extend_schema_view(
+    list=extend_schema(
+        responses=BuyOrderSerializer(many=True),
+        tags=["P2P"]
+    ),
+    create=extend_schema(
+        request=BuyOrderSerializer,
+        responses=BuyOrderSerializer,
+        tags=["P2P"]
+    )
+)
+class BuyOrderViewSet(CustomResponseMixin, viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        qs = BuyOrder.objects.all().order_by("-created_at")
+        return self.success(BuyOrderSerializer(qs, many=True).data)
+
+    def create(self, request):
+        serializer = BuyOrderSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return self.success(
+            serializer.data,
+            "Buy order created",
+            status.HTTP_201_CREATED
+        )
+
+
+# -------------------------
+# COIN
+# -------------------------
 @extend_schema_view(
     list=extend_schema(
         responses=CoinSerializer(many=True),
@@ -165,6 +267,7 @@ class CoinViewSet(CustomResponseMixin, viewsets.ViewSet):
         serializer = CoinSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
         return self.success(
             serializer.data,
             "Coin created",
